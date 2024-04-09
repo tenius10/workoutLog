@@ -2,6 +2,7 @@ package com.example.workoutlog.service;
 
 import com.example.workoutlog.dto.WorkoutInput;
 import com.example.workoutlog.dto.WorkoutOutput;
+import com.example.workoutlog.dto.WorkoutPartOutput;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,13 +39,40 @@ public class WorkoutService {
      * 저장되어 있는 모든 운동기록을 리턴
      * @return WorkoutOutput List
      */
-    public List<WorkoutOutput> readAll(){
+    public List<WorkoutOutput> findAll(){
         // 데이터베이스의 모든 정보를 읽고 유저에게 리턴할 데이터(workoutOutput)로 맞춰 변환해 리턴
         List<WorkoutOutput> result = new ArrayList<>();
         for(Workout i: workoutsRepository){
             result.add(i.toWorkoutOutput());
         }
         return result;
+    }
+
+    /**
+     * workoutLog 페이지 가져오기
+     * @param howMany 페이지 크기
+     * @param pageNum 페이지 번호
+     * @return workoutLog 페이지 정보 반환
+     */
+    public WorkoutPartOutput findPart(int howMany, int pageNum){
+        if(howMany==0){
+            return WorkoutPartOutput.builder()
+                    .workoutLogs(new ArrayList<>())
+                    .maxPage(0)
+                    .build();
+        }
+        else {
+            int dataSize=workoutsRepository.size();
+            int maxPage=dataSize/howMany+ (dataSize%howMany==0?0:1);
+            List<WorkoutOutput> workoutLogss=new ArrayList<>();
+            for(int i=pageNum*howMany;i<(pageNum+1)*howMany && i<dataSize;i++){
+                workoutLogss.add(workoutsRepository.get(i).toWorkoutOutput());
+            }
+            return WorkoutPartOutput.builder()
+                    .workoutLogs(workoutLogss)
+                    .maxPage(maxPage)
+                    .build();
+        }
     }
 
     /**

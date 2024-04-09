@@ -2,6 +2,7 @@ package com.example.workoutlog.controller;
 
 import com.example.workoutlog.dto.WorkoutInput;
 import com.example.workoutlog.dto.WorkoutOutput;
+import com.example.workoutlog.dto.WorkoutPartOutput;
 import com.example.workoutlog.service.WorkoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/workoutLog")
 @CrossOrigin(origins="*")
 public class WorkoutController {
     private final WorkoutService workoutService;
@@ -29,7 +30,14 @@ public class WorkoutController {
 
     @GetMapping()
     public ResponseEntity<List<WorkoutOutput>> findAll(){
-        return new ResponseEntity<>(workoutService.readAll(), HttpStatus.OK);
+        return new ResponseEntity<>(workoutService.findAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<WorkoutPartOutput> findPart(@RequestParam("howMany") int howMany,
+                                                      @RequestParam("pageNum") int pageNum){
+        WorkoutPartOutput result=workoutService.findPart(howMany, pageNum);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
